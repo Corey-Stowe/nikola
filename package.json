@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/project-dec1mus/nikola/issues"
   },
-  "homepage": "https://github.com/project-dec1mus/nikola#readme"
+  "homepage": "https://github.com/project-dec1mus/nikola#readme",
+  "dependencies": {
+    "buffer-json": "^2.0.0",
+    "dotenv": "^8.2.0",
+    "semver": "^7.3.2"
+  }
 }
