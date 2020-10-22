@@ -14,7 +14,7 @@ module.exports = function (__GLOBAL) {
 
     try {
         fs.mkdirSync(path.join(process.cwd(), ".data", "logs"), { recursive: true });
-    } catch (_) {}
+    } catch (_) { }
 
     if (__GLOBAL.getType(__GLOBAL.fileLogParams) !== "Object") {
         __GLOBAL.fileLogParams = {
@@ -117,13 +117,18 @@ module.exports = function (__GLOBAL) {
                 __GLOBAL.fileLogParams.fileSplit = 0;
                 searchFileSplit = true;
             }
+            let logFilename = "logs-" +
+                String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
+                "-" +
+                String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
+                "-" +
+                String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
+                "-" +
+                __GLOBAL.fileLogParams.fileSplit +
+                ".log";
             if (searchFileSplit) {
                 for (; ;) {
-                    if (!fs.existsSync(path.join(
-                        process.cwd(),
-                        ".data",
-                        "logs",
-                        "logs-" +
+                    logFilename = "logs-" +
                         String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
                         "-" +
                         String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
@@ -131,20 +136,19 @@ module.exports = function (__GLOBAL) {
                         String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
                         "-" +
                         __GLOBAL.fileLogParams.fileSplit +
-                        ".log"
+                        ".log";
+                    if (!fs.existsSync(path.join(
+                        process.cwd(),
+                        ".data",
+                        "logs",
+                        logFilename
                     )) && !fs.existsSync(path.join(
                         process.cwd(),
                         ".data",
                         "logs",
                         "logs-" +
-                        String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
-                        "-" +
-                        String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
-                        "-" +
-                        String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
-                        "-" +
-                        __GLOBAL.fileLogParams.fileSplit +
-                        ".log.gz"
+                        logFilename +
+                        ".gz"
                     ))) break;
                     __GLOBAL.fileLogParams.fileSplit++;
                 }
@@ -154,21 +158,13 @@ module.exports = function (__GLOBAL) {
                     process.cwd(),
                     ".data",
                     "logs",
-                    "logs-" +
-                    String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
-                    "-" +
-                    String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
-                    "-" +
-                    String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
-                    "-" +
-                    __GLOBAL.fileLogParams.fileSplit +
-                    ".log"
+                    logFilename
                 ),
                 `[${currentTimeHeader}] ` +
-                    (this.isPlugin ? "[PLUGIN] " : "") +
-                    `[${this.prefix}]` +
-                    nonColorFormat +
-                    os.EOL
+                (this.isPlugin ? "[PLUGIN] " : "") +
+                `[${this.prefix}]` +
+                nonColorFormat +
+                os.EOL
             );
             // Future-proof. SSH logging.
             if (__GLOBAL.getType(__GLOBAL.sshTerminal) === "Object") {
