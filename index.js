@@ -1,5 +1,5 @@
 /* 
-    Copyright (C) 2020  BadAimWeeb
+    Copyright (C) 2020  BadAimWeeb/TeamDec1mus
 
     Just call this a bootloader.
 */
