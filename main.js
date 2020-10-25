@@ -31,4 +31,15 @@
     console.error = logger.log.bind(logger, ["[ERROR]"]);
 
     logger.log("Booting up...");
+    __GLOBAL.botUpdater = new (require("./app/updater"))();
+    switch (String(process.env.UPDATER_AUTOUPDATE).toLowerCase()) {
+        case "auto":
+
+        case "check":
+        
+        case "none":
+            break;
+        default:
+            logger.log(`Invalid value "${process.env.UPDATER_AUTOUPDATE}" (config key: UPDATER_AUTOUPDATE).`);
+    }
 })();
