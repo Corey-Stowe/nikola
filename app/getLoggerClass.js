@@ -1,5 +1,5 @@
 /**
- * Create a logger class in __GLOBAL
+ * Return a logger class with __GLOBAL access
  * 
  * @param {object} __GLOBAL 
  */
@@ -118,54 +118,33 @@ module.exports = function (__GLOBAL) {
                 searchFileSplit = true;
             }
             let logFilename = "logs-" +
-                String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
-                "-" +
-                String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
-                "-" +
-                String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
-                "-" +
-                __GLOBAL.fileLogParams.fileSplit +
-                ".log";
+                String(__GLOBAL.fileLogParams.date).padStart(2, "0") + "-" +
+                String(__GLOBAL.fileLogParams.month).padStart(2, "0") + "-" +
+                String(__GLOBAL.fileLogParams.year).padStart(4, "0") + "-" +
+                __GLOBAL.fileLogParams.fileSplit + ".log";
             if (searchFileSplit) {
                 for (; ;) {
                     logFilename = "logs-" +
-                        String(__GLOBAL.fileLogParams.date).padStart(2, "0") +
-                        "-" +
-                        String(__GLOBAL.fileLogParams.month).padStart(2, "0") +
-                        "-" +
-                        String(__GLOBAL.fileLogParams.year).padStart(4, "0") +
-                        "-" +
-                        __GLOBAL.fileLogParams.fileSplit +
-                        ".log";
-                    if (!fs.existsSync(path.join(
-                        process.cwd(),
-                        ".data",
-                        "logs",
-                        logFilename
-                    )) && !fs.existsSync(path.join(
-                        process.cwd(),
-                        ".data",
-                        "logs",
-                        "logs-" +
-                        logFilename +
-                        ".gz"
-                    ))) break;
+                        String(__GLOBAL.fileLogParams.date).padStart(2, "0") + "-" +
+                        String(__GLOBAL.fileLogParams.month).padStart(2, "0") + "-" +
+                        String(__GLOBAL.fileLogParams.year).padStart(4, "0") + "-" +
+                        __GLOBAL.fileLogParams.fileSplit + ".log";
+                    if (
+                        !fs.existsSync(path.join(process.cwd(), ".data", "logs", logFilename)) && 
+                        !fs.existsSync(path.join(process.cwd(), ".data", "logs","logs-" + logFilename + ".gz"))
+                    ) break;
                     __GLOBAL.fileLogParams.fileSplit++;
                 }
             }
             fs.appendFileSync(
-                path.join(
-                    process.cwd(),
-                    ".data",
-                    "logs",
-                    logFilename
-                ),
+                path.join(process.cwd(), ".data", "logs", logFilename),
                 `[${currentTimeHeader}] ` +
                 (this.isPlugin ? "[PLUGIN] " : "") +
                 `[${this.prefix}]` +
                 nonColorFormat +
                 os.EOL
             );
+            
             // Future-proof. SSH logging.
             if (__GLOBAL.getType(__GLOBAL.sshTerminal) === "Object") {
                 for (let ip in __GLOBAL.sshTerminal) {
