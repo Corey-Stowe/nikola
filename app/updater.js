@@ -152,7 +152,7 @@ module.exports = class Updater extends events.EventEmitter {
                 throw true;
             } catch (e) {
                 if (e === true) {
-                    await fs.promises.writeFile(path.join(process.cwd(), ".data", "flag_update_npm"));
+                    await fs.promises.writeFile(path.join(process.cwd(), ".data", "flag_upgrade"));
                     let updateConfig = require("./updater.updateConfig");
                     if (await updateConfig()) {
                         return true;
