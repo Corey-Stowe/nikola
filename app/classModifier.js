@@ -164,3 +164,4 @@ let splitArgs = function splitArgs(string) {
 }
 
 module.exports = { getType, ensureExists, findFromDir, requireFromString, splitArgs };
+Object.assign(global, module.exports);
