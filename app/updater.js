@@ -30,8 +30,9 @@ let spawn = function spawn(cmd, arg, stdio = "pipe") {
             stdio,
             cwd: process.cwd()
         });
+        let data = concatStream(npmProcess.stdout);
         npmProcess.on("close", async function (code) {
-            resolve([code, await concatStream(npmProcess.stdout)]);
+            resolve([code, await data]);
         });
     });
 }
