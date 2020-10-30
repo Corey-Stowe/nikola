@@ -50,7 +50,7 @@
                         updateLog.log(`Updating...`);
                         let status = await __GLOBAL.botUpdater.performUpdate();
                         if (status) {
-                            if (process.env.UPDATER_AUTOUPDATE) {
+                            if (process.env.UPDATER_AUTOUPDATE === "auto-restart") {
                                 updateLog.log("Update finished. Restarting the bot...");
                                 global.exitIsUpdate = true;
                                 process.exit(7378278);
