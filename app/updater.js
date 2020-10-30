@@ -13,7 +13,7 @@ let AdmZip = require("adm-zip");
  * 
  * @param {stream.Readable} stream 
  */
-function concatStream(stream) {
+let concatStream = function concatStream(stream) {
     return new Promise(r => {
         stream.pipe(concat(r), { end: true });
     });
@@ -23,14 +23,14 @@ const isDirectory = async (source) => (await fs.promises.lstat(source)).isDirect
 const getDirectories = async (source) =>
     (await fs.promises.readdir(source)).map(name => path.join(source, name)).filter(isDirectory);
 
-function spawn(cmd, arg, stdio = "pipe") {
+let spawn = function spawn(cmd, arg, stdio = "pipe") {
     return new Promise(resolve => {
         var npmProcess = childProcess.spawn(cmd, arg, {
             shell: true,
             stdio,
             cwd: process.cwd()
         });
-        npmProcess.on("close", function (code) {
+        npmProcess.on("close", async function (code) {
             resolve([code, await concatStream(npmprocess.stdout)]);
         });
     });
