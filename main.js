@@ -28,7 +28,7 @@
     };
 
     console.log = logger.log;
-    console.error = logger.log.bind(logger, ["[ERROR]"]);
+    console.error = logger.log.bind(logger, "[ERROR]");
 
     logger.log("Booting up...");
 

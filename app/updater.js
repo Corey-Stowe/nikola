@@ -31,7 +31,7 @@ let spawn = function spawn(cmd, arg, stdio = "pipe") {
             cwd: process.cwd()
         });
         npmProcess.on("close", async function (code) {
-            resolve([code, await concatStream(npmprocess.stdout)]);
+            resolve([code, await concatStream(npmProcess.stdout)]);
         });
     });
 }
