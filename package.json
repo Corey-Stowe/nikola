@@ -20,6 +20,7 @@
   "dependencies": {
     "adm-zip": "^0.4.16",
     "buffer-json": "^2.0.0",
+    "concat-stream": "^2.0.0",
     "dotenv": "^8.2.0",
     "semver": "^7.3.2"
   }
