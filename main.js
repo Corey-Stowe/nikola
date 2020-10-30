@@ -38,20 +38,19 @@
         __GLOBAL.botUpdater = new (require("./app/updater"))(updateLog.log);
 
         async function checkUpdate() {
+            let diff;
             switch (String(process.env.UPDATER_AUTOUPDATE).toLowerCase()) {
                 case "check":
-                    let diff = await __GLOBAL.botUpdater.getDiff();
+                    diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);
                     }
                     return;
                 case "auto":
                 case "auto-restart":
-                    let diff = await __GLOBAL.botUpdater.getDiff();
+                    diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);
-                    }
-                    if (diff) {
                         updateLog.log(`Updating...`);
                         let status = await __GLOBAL.botUpdater.performUpdate();
                         if (status) {
