@@ -1,4 +1,6 @@
 (async () => {
+    let bootupStart = Date.now();
+
     let fs = require("fs");
     let path = require("path");
 
@@ -85,4 +87,5 @@
     }
 
     global.startupFinished = true;
+    logger.log(`Finished booting. ${(Date.now() - bootupStart) / 1000}s`);
 })();
