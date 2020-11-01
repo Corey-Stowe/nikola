@@ -87,5 +87,5 @@
     }
 
     global.startupFinished = true;
-    logger.log(`Finished booting. ${(Date.now() - bootupStart) / 1000}s`);
+    logger.log(`Finished booting. (${(Date.now() - bootupStart) / 1000}s)`);
 })();
