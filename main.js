@@ -1,3 +1,9 @@
+/* 
+    Copyright (C) 2020  BadAimWeeb/TeamDec1mus
+
+    The start of everything. Litteraly everything.
+*/
+
 (async () => {
     let bootupStart = Date.now();
 
@@ -33,6 +39,17 @@
     console.error = logger.log.bind(logger, "[ERROR]");
 
     logger.log("Booting up...");
+
+    global.ensureExists(path.join(process.cwd(), ".data"));
+
+    // Expected sequence: Get storage => Load plugin => Check update => Load interface/login
+
+    // Get storage
+    let storageGetter = new (require("./app/getStorage"))();
+    let storage = await storageGetter.getStorage();
+    __GLOBAL.storage = storage;
+
+    // Load plugin
 
     // Update
     try {
@@ -88,4 +105,4 @@
 
     global.startupFinished = true;
     logger.log(`Finished booting. (${(Date.now() - bootupStart) / 1000}s)`);
-})();
+})(); 
