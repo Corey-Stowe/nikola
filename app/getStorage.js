@@ -80,7 +80,7 @@ global.StorageBase = StorageBase;
 
 module.exports = class GetStorage {
     static validStorageType = ["json"];
-    storage = new StorageBase();
+    storage = new StorageBase(true);
 
     async getStorage() {
         if (GetStorage.validStorageType.indexOf(String(process.env.STORAGE_TYPE).toLowerCase()) + 1) {
