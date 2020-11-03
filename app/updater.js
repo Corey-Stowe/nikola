@@ -62,7 +62,7 @@ module.exports = class Updater extends events.EventEmitter {
 
         if (isGit) {
             if ((await spawn("git", ["fetch"]))[0]) return 0;
-            return +((await spawn("git", ["rev-list", "--count", "HEAD...refs/remotes/origin/HEAD"]))[0]);
+            return +((await spawn("git", ["rev-list", "--count", "HEAD...refs/remotes/origin/HEAD"]))[1].toString());
         } else {
             // TODO: Use GitHub API to check for diff in releases.
             /** @type {string} */
