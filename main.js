@@ -23,10 +23,7 @@
     let __GLOBAL = global.__GLOBAL || {}; // Tricking VSCode to think that this is an object.
 
     let cModifier = require("./app/classModifier");
-    __GLOBAL = {
-        ...__GLOBAL,
-        ...cModifier
-    }
+    Object.assign(__GLOBAL, cModifier);
 
     __GLOBAL.Logger = require("./app/getLoggerClass")(__GLOBAL);
     let logger = new __GLOBAL.Logger("INTERNAL");
