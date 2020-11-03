@@ -105,4 +105,6 @@
 
     global.startupFinished = true;
     logger.log(`Finished booting. (${(Date.now() - bootupStart) / 1000}s)`);
+
+    __GLOBAL.replConsole = require("./app/repl");
 })(); 
