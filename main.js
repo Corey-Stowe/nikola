@@ -20,6 +20,7 @@
     require("dotenv").config();
 
     let __GLOBAL = {};
+    global.__GLOBAL = __GLOBAL;
 
     let cModifier = require("./app/classModifier");
     __GLOBAL = {

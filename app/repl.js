@@ -17,11 +17,13 @@ if (
 let ANSI_COLOR_HEADER = `\x1B[38;2;${redColorValue};${greenColorValue};${blueColorValue}m`;
 
 process.stdout.write(`
-NikolaBot REPL console - Welcome.
+    NikolaBot REPL console - Welcome!
+
+
 `);
 
 global.replConsole = repl.start({
-    prompt: `${ANSI_COLOR_HEADER}localhost@c3c:js# `,
+    prompt: `${ANSI_COLOR_HEADER}localhost@nikola:js# `,
     terminal: true,
     useColors: true,
     breakEvalOnSigint: true,
