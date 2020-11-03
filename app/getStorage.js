@@ -85,7 +85,7 @@ module.exports = class GetStorage {
     async getStorage() {
         if (GetStorage.validStorageType.indexOf(String(process.env.STORAGE_TYPE).toLowerCase()) + 1) {
             if (this.storage.isNil) {
-                let Storage = require(path.join(process.cwd(), "app", "storage", process.env.STORAGE_TYPE))(StorageBase);
+                let Storage = await require(path.join(process.cwd(), "app", "storage", process.env.STORAGE_TYPE))(StorageBase);
                 this.storage = new Storage(process.env);
                 this.storage = await this.storage.config();
                 return this.storage;
