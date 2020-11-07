@@ -100,7 +100,7 @@ module.exports = function (__GLOBAL) {
             if (__GLOBAL.replConsole) __GLOBAL.replConsole.prompt(false);
 
             // Log to a file
-            __GLOBAL.ensureExists(path.join(process.cwd(), "logs")); // Ensure that ./logs directory exists.
+            __GLOBAL.ensureExists(path.join(process.cwd(), ".data", "logs")); // Ensure that .data/logs directory exists.
             let searchFileSplit = false;
             if (__GLOBAL.fileLogParams.date !== currentTime.getUTCDate()) {
                 __GLOBAL.fileLogParams.date = currentTime.getUTCDate();
