@@ -7,7 +7,7 @@ const replaceTable = [{}];
 module.exports = async function updateConfig() {
     // Get .env.default file
     let defaultENV = await fs.promises.readFile(path.join(process.cwd(), ".env.default"), { encoding: "utf8" });
-    let splitedDefENV = defaultENV.split(/$/m).map(x => x.replace(/\r|\n/g, "")).filter((_, i) => i % 2 === 0);
+    let splitedDefENV = defaultENV.split(/\r?\n/);
     let updatedDefENV = splitedDefENV.map(v => {
         if (v.startsWith("#")) return v;
         if (!(v.indexOf("=") + 1)) return v;
