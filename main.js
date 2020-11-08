@@ -58,6 +58,7 @@
             let diff;
             switch (String(process.env.UPDATER_AUTOUPDATE).toLowerCase()) {
                 case "check":
+                    logger.log("Executing tasks: Check for updates...");
                     diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);
@@ -65,6 +66,7 @@
                     return;
                 case "auto":
                 case "auto-restart":
+                    logger.log("Executing tasks: Check for updates...");
                     diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);

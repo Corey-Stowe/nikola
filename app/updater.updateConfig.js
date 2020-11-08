@@ -10,6 +10,7 @@ module.exports = async function updateConfig() {
     let splitedDefENV = defaultENV.split(/$/m).map(x => x.replace(/\r|\n/g, "")).filter((_, i) => i % 2 === 0);
     let updatedDefENV = splitedDefENV.map(v => {
         if (v.startsWith("#")) return v;
+        if (!(v.indexOf("=") + 1)) return v;
         let splitedKeyValue = v.split("=", 2);
         
         let newValue = process.env[splitedKeyValue[0]] || splitedKeyValue[1];
