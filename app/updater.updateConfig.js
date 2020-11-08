@@ -24,6 +24,7 @@ module.exports = async function updateConfig() {
     });
 
     let newENV = updatedDefENV.join(os.EOL);
+    
     try {
         await fs.promises.writeFile(path.join(process.cwd(), ".env"), newENV, { encoding: "utf8" });
     } catch (ex) {
