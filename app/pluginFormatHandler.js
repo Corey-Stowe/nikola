@@ -4,8 +4,9 @@ let semver = require("semver");
 const BotPlugin = class BotPlugin {
     #dataObj = {
         name: "",
-        version: "0.0.0",
+        version: new semver.SemVer("0.0.0"),
         author: "",
+        scopeName: "",
         commandSet: {
             "null": {
                 exec: () => { return { handler: "default", data: { content: "" } }},
@@ -26,11 +27,20 @@ const BotPlugin = class BotPlugin {
     get scope() { return this.#scope }
 
     constructor(objectData) {
-        this.#dataObj.commandSet = {}
-
+        if (typeof objectData.pluginType !== "string") throw new Error("objectData MUST HAVE `pluginType` set to plugin type name! [string]");
         if (typeof objectData.name !== "string") throw new Error("objectData MUST HAVE `name` set to plugin name! [string]");
         if (typeof objectData.scopeName !== "string") throw new Error("objectData MUST HAVE `scopeName` set to plugin scope name! [string]");
         if (typeof objectData.version !== "string" || !semver.parse(objectData.version)) throw new Error("objectData MUST HAVE `version` set to version following the Semantic Versioning (x.y.z)! [string]");
+
+        this.#dataObj.commandSet = {
+            name: objectData.name,
+            scopeName: objectData.scopeName,
+            version: semver.parse(objectData.version),
+            author: objectData.author || "",
+            commandSet: {}
+        }
+        this.#scope = objectData.scope;
+        
         if (typeof objectData.scope === "object" && typeof objectData.commandDef === "object") {
             for (let cmd in objectData.commandDef) {
                 if (typeof objectData.commandDef[cmd].exec !== "function") continue;
@@ -101,7 +111,7 @@ module.exports = class FormatHandler {
         this.#formatResolver = await Promise.all(
             this.#formatList.map(fName => {
                 let Resolver = require(path.join(process.cwd(), "app", "format", fName.toLowerCase()));
-                return (new Resolver()).setup(BotPlugin);
+                return (new Resolver()).setup(BotPlugin, __GLOBAL.Logger);
             })
         );
         return this;
