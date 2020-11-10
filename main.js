@@ -40,12 +40,16 @@
 
     global.ensureExists(path.join(process.cwd(), ".data"));
 
-    // Expected sequence: Get storage => Load plugin => Check update => Load interface/login
+    // Expected sequence: Get storage => Get NPM handler => Load plugin => Check update => Load interface/login
 
     // Get storage
     let storageGetter = new (require("./app/getStorage"))();
     let storage = await storageGetter.getStorage();
     __GLOBAL.storage = storage;
+
+    // Get NPM handler
+    let npmPluginHandler = await require("./app/npmPackageHandler")(__GLOBAL);
+    __GLOBAL.npmPluginHandler = npmPluginHandler;
 
     // Load plugin
 
