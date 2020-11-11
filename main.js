@@ -34,7 +34,7 @@
     };
 
     console.log = logger.log;
-    console.error = logger.log.bind(logger, "[ERROR]");
+    console.error = logger.error;
 
     logger.log("Booting up...");
 
@@ -43,6 +43,7 @@
     // Expected sequence: Get storage => Get NPM handler => Load plugin => Check update => Load interface/login
 
     // Get storage
+    logger.verb("Executing tasks: Getting storage...");
     let storageGetter = new (require("./app/getStorage"))();
     let storage = await storageGetter.getStorage();
     __GLOBAL.storage = storage;
@@ -62,7 +63,7 @@
             let diff;
             switch (String(process.env.UPDATER_AUTOUPDATE).toLowerCase()) {
                 case "check":
-                    logger.log("Executing tasks: Check for updates...");
+                    logger.verb("Executing tasks: Check for updates...");
                     diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);
@@ -70,7 +71,7 @@
                     return;
                 case "auto":
                 case "auto-restart":
-                    logger.log("Executing tasks: Check for updates...");
+                    logger.verb("Executing tasks: Check for updates...");
                     diff = await __GLOBAL.botUpdater.getDiff();
                     if (diff) {
                         updateLog.log(`There's a new version available! (you're behind by ${diff === Infinity ? "100+" : diff} version)`);
@@ -90,7 +91,7 @@
                 case "none":
                     return;
                 default:
-                    logger.log(`Invalid value "${process.env.UPDATER_AUTOUPDATE}" in config. (config key: UPDATER_AUTOUPDATE).`);
+                    logger.error(`Invalid value "${process.env.UPDATER_AUTOUPDATE}" in config. (config key: UPDATER_AUTOUPDATE).`);
             }
         }
 
@@ -98,13 +99,13 @@
 
         let interval = parseInt(process.env.UPDATER_CHECK_INTERVAL);
         if (isNaN(interval)) {
-            logger.log(`Invalid value ${process.env.UPDATER_CHECK_INTERVAL} in config. (not a valid number) (config key: UPDATER_CHECK_INTERVAL)`, ex);
+            logger.error(`Invalid value ${process.env.UPDATER_CHECK_INTERVAL} in config. (not a valid number) (config key: UPDATER_CHECK_INTERVAL)`, ex);
         }
 
         if (interval <= 0) return;
         __GLOBAL.updateInterval = setInterval(checkUpdate, interval * 60000);
     } catch (ex) {
-        logger.log("An error occured while trying to execute UPDATE_BOT:", ex);
+        logger.error("An error occured while trying to execute UPDATE_BOT:", ex);
     }
 
     global.startupFinished = true;

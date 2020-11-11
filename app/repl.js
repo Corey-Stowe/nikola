@@ -19,7 +19,6 @@ let ANSI_COLOR_HEADER = `\x1B[38;2;${redColorValue};${greenColorValue};${blueCol
 process.stdout.write(`
     NikolaBot REPL console - Welcome!
 
-
 `);
 
 global.replConsole = repl.start({
@@ -51,7 +50,7 @@ global.replConsole.eval = function evaluate(cmd, context, filename, callback) {
             let e = cmd.replace(/(\r\n|\n|\r)$/, "");
             console.log("CONSOLE issued a command:", (e.split(/\r|\n|\r\n/g).length > 1 ? os.EOL + e : e));
             if (err) {
-                console.log("JavaScript execution failed:", err);
+                console.error("JavaScript execution failed:", err);
                 callback(null, "");
             } else {
                 console.log("JavaScript execution:", value);

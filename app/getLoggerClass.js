@@ -29,7 +29,37 @@ module.exports = function (__GLOBAL) {
         prefix = "INTERNAL";
         isPlugin = false;
 
+        error(...val) {
+            switch (process.env.LOG_LEVEL) {
+                case "error":
+                case "info":
+                case "verb":
+                    return this.#log("[ERROR]", ...val);
+                default:
+                    return false;
+            }
+        }
+
         log(...val) {
+            switch (process.env.LOG_LEVEL) {
+                case "info":
+                case "verb":
+                    return this.#log(...val);
+                default:
+                    return false;
+            }
+        }
+
+        verb(...val) {
+            switch (process.env.LOG_LEVEL) {
+                case "verb":
+                    return this.#log("[VERB]", ...val);
+                default:
+                    return false;
+            }
+        }
+
+        #log = (...val) => {
             // Get logging time
             let currentTime = new Date();
             // Format the current time. 
@@ -163,7 +193,10 @@ module.exports = function (__GLOBAL) {
         constructor(prefix = "INTERNAL", isPlugin = false) {
             this.prefix = String(prefix);
             this.isPlugin = Boolean(isPlugin);
+            this.#log = this.#log.bind(this);
             this.log = this.log.bind(this);
+            this.error = this.error.bind(this);
+            this.verb = this.verb.bind(this);
         }
     };
 

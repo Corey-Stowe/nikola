@@ -22,6 +22,7 @@ module.exports = class FormatAParser {
         try {
             let parsedURL = new URL(url);
             let zipObj;
+            let pluginType = "";
             switch (parsedURL.protocol) {
                 case "file:":
                     // Read the files
@@ -34,6 +35,7 @@ module.exports = class FormatAParser {
 
                     if (buffer.slice(0, 4).toString("ascii") === "\x50\x4b\x03\x04") {
                         // ZIP header detected. Start parsing to AdmZip class.
+                        pluginType = "A";
                         zipObj = new AdmZip(buffer);
                     } else if (buffer.slice(0, 16).toString("ascii") === "NIKOLA!?A!----") {
                         // Plugin-over-network (HTTP/PM) file placeholder detected.
@@ -83,9 +85,12 @@ module.exports = class FormatAParser {
                 typeof pInfo.flag !== "string" ||
                 typeof pInfo.name !== "string" ||
                 typeof pInfo.version !== "string" ||
-                typeof pInfo.exec !== "string"
+                typeof pInfo.scopeName !== "string" ||
+                typeof pInfo.exec !== "string" ||
+                !pInfo.name.length ||
+                !pInfo.scopeName.length
             ) return null;
-            
+
             {
                 let splitedFlag = pInfo.flag.split("!");
                 if (splitedFlag[0] !== "A" || splitedFlag[1] !== "1.0.0") return null;
@@ -96,8 +101,47 @@ module.exports = class FormatAParser {
             let execCode = zipObj.readAsText(newRootDIR + pInfo.exec);
             if (!execCode) return null;
 
-            // TODO: Running the code inside a VM, not letting it access the global scope.
-            return null;
+            // Running the code inside a VM, not letting it access the global scope.
+            return {
+                resolver: ((that) => async () => {
+                    let context = vm.createContext({});
+                    let script = new vm.Script(
+                        // Wrapping code in an async function for top-level await support.
+                        "(async () => {\n" +
+                        execCode + "\n" +
+                        "})()",
+                        {
+                            filename: `NikolaPlugin.<${url}>`,
+                            lineOffset: -1
+                        }
+                    )
+                    let exec = await script.runInContext(context);
+
+                    let plugin = new that.BotPlugin({
+                        pluginType,
+                        name: pInfo.name,
+                        version: pInfo.version,
+                        scopeName: pInfo.scopeName,
+                        scope: exec,
+                        commandDef: Object.entries(pInfo.commandDef || {}).reduce((a, cmd) => ({
+                            ...a,
+                            [cmd[0]]: {
+                                exec: exec[cmd[1].funcName],
+                                compatibly: cmd[1].compatibly,
+                                helpArgs: cmd[1].helpArgs,
+                                helpDesc: cmd[1].helpDesc,
+                                example: cmd[1].example,
+                                defaultViewPerm: Boolean(cmd[1].defaultViewPerm),
+                                defaultExecPerm: Boolean(cmd[1].defaultExecPerm)
+                            }
+                        }), {}),
+                        type: pluginType
+                    });
+
+                    return plugin;
+                })(this),
+                type: pluginType
+            };
         } catch (_) { };
     }
 }

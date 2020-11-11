@@ -17,11 +17,13 @@ const BotPlugin = class BotPlugin {
                 defaultViewPerm: true,
                 defaultExecPerm: true
             }
-        }
+        },
+        type: ""
     };
     get name() { return this.#dataObj.name }
     get version() { return this.#dataObj.version }
     get author() { return this.#dataObj.author || "" }
+    get type() { return this.#dataObj.type }
 
     #scope = {};
     get scope() { return this.#scope }
@@ -31,13 +33,15 @@ const BotPlugin = class BotPlugin {
         if (typeof objectData.name !== "string") throw new Error("objectData MUST HAVE `name` set to plugin name! [string]");
         if (typeof objectData.scopeName !== "string") throw new Error("objectData MUST HAVE `scopeName` set to plugin scope name! [string]");
         if (typeof objectData.version !== "string" || !semver.parse(objectData.version)) throw new Error("objectData MUST HAVE `version` set to version following the Semantic Versioning (x.y.z)! [string]");
+        if (typeof objectData.type !== "string" || !semver.parse(objectData.type)) throw new Error("objectData MUST HAVE `type` set to plugin format type! [string]");
 
-        this.#dataObj.commandSet = {
+        this.#dataObj = {
             name: objectData.name,
             scopeName: objectData.scopeName,
             version: semver.parse(objectData.version),
             author: objectData.author || "",
-            commandSet: {}
+            commandSet: {},
+            type: objectData.type
         }
         this.#scope = objectData.scope;
         
@@ -47,7 +51,7 @@ const BotPlugin = class BotPlugin {
                 if (typeof objectData.commandDef[cmd].compatibly === "string") objectData.commandDef[cmd].compatibly = [
                     objectData.commandDef[cmd].compatibly
                 ];
-                if (global.getType(objectData.commandDef[cmd]) !== "Array") continue;
+                if (global.getType(objectData.commandDef[cmd].compatibly) !== "Array") continue;
 
                 if (typeof objectData.commandDef[cmd].helpArgs === "string") {
                     objectData.commandDef[cmd].helpArgs = {
@@ -128,7 +132,11 @@ module.exports = class FormatHandler {
     async load(url, extraData) {
         let check = await this.checkType(url, extraData);
         if (check) {
-            return this.loadFromClass(await check.resolver());
+            try {
+                return this.loadFromClass(await check.resolver());
+            } catch (e) {
+                console.error(`RUNTIME ERROR: Cannot parse plugin ${url} (detected type: ${check.type}) to class.`);
+            }
         } else throw new Error("Invalid or unsupported format.");
     }
 
