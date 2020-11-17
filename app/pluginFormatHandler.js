@@ -115,7 +115,7 @@ module.exports = class FormatHandler {
         this.#formatResolver = await Promise.all(
             this.#formatList.map(fName => {
                 let Resolver = require(path.join(process.cwd(), "app", "format", fName.toLowerCase()));
-                return (new Resolver()).setup(BotPlugin, __GLOBAL.Logger);
+                return (new Resolver()).setup(BotPlugin, this.__GLOBAL.Logger, this.__GLOBAL);
             })
         );
         return this;
