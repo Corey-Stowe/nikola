@@ -106,6 +106,7 @@ module.exports = class FormatHandler {
     __GLOBAL = {};
     #formatList = ["A"];
     #formatResolver = [];
+    #logger;
 
     constructor(__GLOBAL) {
         this.__GLOBAL = __GLOBAL;
@@ -118,10 +119,14 @@ module.exports = class FormatHandler {
                 return (new Resolver()).setup(BotPlugin, this.__GLOBAL.Logger, this.__GLOBAL);
             })
         );
+        let __GLOBAL = this.__GLOBAL
+        this.#logger = new __GLOBAL.Logger("FormatHandler");
         return this;
     }
 
     async checkType(url, extraData) {
+        // extraData is unused as of now.
+
         let result = await Promise.all(this.#formatResolver.map(f => f.check(url, extraData)));
         result = result.filter(x => x != null);
         if (result.length === 0) return false;
@@ -130,12 +135,15 @@ module.exports = class FormatHandler {
     }
 
     async load(url, extraData) {
+        // extraData is unused as of now.
+
         let check = await this.checkType(url, extraData);
         if (check) {
             try {
                 return this.loadFromClass(await check.resolver());
             } catch (e) {
-                console.error(`RUNTIME ERROR: Cannot parse plugin ${url} (detected type: ${check.type}) to class.`);
+                this.#logger.error(`RUNTIME ERROR: Cannot parse plugin ${url} (detected type: ${check.type}) to class.`);
+                throw new Error("Invalid or unsupported format.");
             }
         } else throw new Error("Invalid or unsupported format.");
     }
@@ -143,6 +151,6 @@ module.exports = class FormatHandler {
     async loadFromClass(cl) {
         if (cl instanceof BotPlugin) {
             // TODO: Resolve this.
-        } else throw new Error("Invalid class, it should be typeof BotPlugin.");
+        } else throw new Error("Invalid class, it should be instanceof BotPlugin.");
     }
 }

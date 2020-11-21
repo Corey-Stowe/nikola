@@ -12,8 +12,8 @@ module.exports = async (StorageBase) => {
         }
 
         async config() {
-            this.#endpoint = path.join(process.cwd(), String(process.env.JSON_STORAGE_PATH));
-            this.#tempEndpoint = path.join(process.cwd(), String(process.env.JSON_TEMP_STORAGE_PATH));
+            this.#endpoint = path.resolve(process.cwd(), String(process.env.JSON_STORAGE_PATH));
+            this.#tempEndpoint = path.resolve(process.cwd(), String(process.env.JSON_TEMP_STORAGE_PATH));
             return this;
         }
 

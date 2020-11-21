@@ -57,14 +57,14 @@ module.exports = async function getClass(__GLOBAL) {
                         content: msg.content,
                         mentions: msg.mentions,
                         attachments: msg.attachments,
-                        senderID: `Discord@!@User@!@${msg.author.id}`,
-                        messageID: `Discord@!@Message@!@${msg.id}`,
+                        senderID: `Discord$.$User$.$${msg.author.id}`,
+                        messageID: `Discord$.$Message$.$${msg.id}`,
                         isBot: msg.author.bot,
                         noResolve: msg.author.bot || msg.system,
-                        threadID: `Discord@!@${msg.channel.type === "dm" ? "DMChannel" : "Channel"}@!@${msg.channel.id}`,
+                        threadID: `Discord$.$${msg.channel.type === "dm" ? "DMChannel" : "Channel"}$.$${msg.channel.id}`,
                         serverID: msg.channel.type == "dm" ?
-                            `Discord@!@DMChannel@!@${msg.channel.id}` :
-                            `Discord@!@Server@!@${msg.guild.id}`,
+                            `Discord$.$DMChannel$.$${msg.channel.id}` :
+                            `Discord$.$Server$.$${msg.guild.id}`,
                         isDM: msg.channel.type === "dm"
                     }
                 });

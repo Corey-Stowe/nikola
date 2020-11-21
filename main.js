@@ -49,10 +49,16 @@
     __GLOBAL.storage = storage;
 
     // Get NPM handler
+    logger.verb("Executing tasks: Getting NPM for plugins...");
     let npmPluginHandler = await require("./app/npmPackageHandler")(__GLOBAL);
     __GLOBAL.npmPluginHandler = npmPluginHandler;
 
     // Load plugin
+    __GLOBAL.ensureExists(path.join(process.cwd(), process.env.PLUGIN_LOCATION));
+    logger.verb("Executing tasks: Getting plugin format handler...");
+    __GLOBAL.pluginFormatHandler = new (require("./app/pluginFormatHandler"))(__GLOBAL);
+    logger.log("Searching for plugins...");
+    await require("./app/pluginFinder")(__GLOBAL);
 
     // Update
     try {
