@@ -33,8 +33,13 @@ module.exports = async function getClass(__GLOBAL) {
         _updateStatus(statusCode = 0) {
             if (Object.values(this).indexOf(this._updateStatus.caller) + 1) {
                 // Called from this class. Safe to change.
+                let oldCode = this.#status;
                 this.#status = statusCode;
-                this.emit("status", this.#status);
+                this.emit("status", {
+                    from: oldCode,
+                    to: this.#status,
+                    class: this
+                });
             } else throw new Error("This function can only be called inside DiscordInterface class.");
         }
 

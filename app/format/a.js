@@ -165,7 +165,8 @@ module.exports = class FormatAParser {
 
                     return plugin;
                 })(this),
-                type: pluginType
+                type: pluginType,
+                dep: pInfo.dep
             };
         } catch (_) { };
     }

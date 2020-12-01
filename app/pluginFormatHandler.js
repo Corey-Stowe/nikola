@@ -27,7 +27,9 @@ const BotPlugin = class BotPlugin {
     get author() { return this.#dataObj.author || "" }
     get type() { return this.#dataObj.type }
     get supportedCommand() { return Object.keys(this.#dataObj.commandSet) }
+    get events() { return this.#dataObj.events }
     commandInfo(cmd) { return {...this.#dataObj.commandSet[cmd]} }
+    toString() { return this.#dataObj.name + " " + this.#dataObj.version.version; }
 
     #scope = {};
     get scope() { return this.#scope }
@@ -45,7 +47,8 @@ const BotPlugin = class BotPlugin {
             version: semver.parse(objectData.version),
             author: objectData.author || "?UNKNOWN",
             commandSet: {},
-            type: objectData.type
+            type: objectData.type,
+            events: objectData.eventHandler || {}
         }
         this.#scope = objectData.scope;
         
@@ -140,11 +143,8 @@ module.exports = class FormatHandler {
 
     async load(url, extraData) {
         // extraData is unused as of now.
-
         let check = await this.checkType(url, extraData);
         if (check) {
-            
-            
             try {
                 return this.loadFromClass(await check.resolver());
             } catch (e) {

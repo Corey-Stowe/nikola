@@ -24,7 +24,21 @@ module.exports = class InterfaceHandler {
     }
 
     #hookInterface = async (c) => {
+        c.on("status", e => {
+            // Calling event listener in plugins
+            for (let p of this.__GLOBAL.plugins)
+                if (typeof p.events.onInterfaceStatusChanged === "function") try {
+                    p.events.onInterfaceStatusChanged(e);
+                } catch (_) {
+                    this.logger.error(`Could not pass InterfaceStatusChangeEvent to ${p.toString()} (is it up to date?):`, _);
+                }
+        });
 
+        c.on("error", e => this.logger.error(`Interface ID ${c.id} encountered an error:`, e));
+
+        c.on("message", msg => {
+            
+        });
     }
 
     #createInterface = async (iData) => {
@@ -46,7 +60,7 @@ module.exports = class InterfaceHandler {
             // Creating class
             let c = new this.interfaceResolver[iData.type](id);;
             try {
-                c = await c.setup(iData.accountInfo);
+                await c.login(iData.accountInfo);
             } catch (_) {
                 this.logger.log(`Error: Interface ID ${id} failed to login:`, _);
             }
