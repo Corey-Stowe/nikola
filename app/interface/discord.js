@@ -17,6 +17,8 @@ module.exports = async function getClass(__GLOBAL) {
             1: "Listening"
         }
 
+        static interfaceType = "Discord";
+
         #status = -Infinity;
         #djsInstance = new Discord.Client();
         #id = 0;
@@ -40,6 +42,8 @@ module.exports = async function getClass(__GLOBAL) {
             this.#id = id;
         }
         async login(accInfo) {
+            if (this.#status !== -Infinity) throw new Error("Cannot initailize an interface more than once.");
+
             this.#djsInstance = new Discord.Client();
             await this.#djsInstance.login(accInfo.token);
             this._updateStatus(0);
@@ -65,7 +69,14 @@ module.exports = async function getClass(__GLOBAL) {
                         serverID: msg.channel.type == "dm" ?
                             `Discord$.$DMChannel$.$${msg.channel.id}` :
                             `Discord$.$Server$.$${msg.guild.id}`,
-                        isDM: msg.channel.type === "dm"
+                        isDM: msg.channel.type === "dm",
+                        mentionPrefix: msg.content.trim().indexOf(`<@${this.accountID}>`) === 0 ?
+                            {
+                                from: msg.content.indexOf(`<@${this.accountID}>`),
+                                to: msg.content.indexOf(`<@${this.accountID}>`) + `<@${this.accountID}>`.length,
+                                mentionContent: `<@${this.accountID}>`
+                            } :
+                            false
                     }
                 });
             });
@@ -73,6 +84,8 @@ module.exports = async function getClass(__GLOBAL) {
                 this.emit("error", { causedBy: "discord.js", error: err });
                 this._updateStatus(-1);
             });
+
+            return this;
         }
         async destroy() {
             this.#djsInstance.destroy();

@@ -18,12 +18,16 @@ const BotPlugin = class BotPlugin {
                 defaultExecPerm: true
             }
         },
-        type: ""
+        type: "",
+        events: {}
     };
     get name() { return this.#dataObj.name }
+    get scopeName() { return this.#dataObj.scopeName }
     get version() { return this.#dataObj.version }
     get author() { return this.#dataObj.author || "" }
     get type() { return this.#dataObj.type }
+    get supportedCommand() { return Object.keys(this.#dataObj.commandSet) }
+    commandInfo(cmd) { return {...this.#dataObj.commandSet[cmd]} }
 
     #scope = {};
     get scope() { return this.#scope }
@@ -39,7 +43,7 @@ const BotPlugin = class BotPlugin {
             name: objectData.name,
             scopeName: objectData.scopeName,
             version: semver.parse(objectData.version),
-            author: objectData.author || "",
+            author: objectData.author || "?UNKNOWN",
             commandSet: {},
             type: objectData.type
         }
@@ -131,7 +135,7 @@ module.exports = class FormatHandler {
         result = result.filter(x => x != null);
         if (result.length === 0) return false;
         return result[0];
-        // { type: "A/*", resolver: [AsyncFunction Resolver] }
+        // { type: "A/*", resolver: () => Promise<BotPlugin>, dep: { [scopeName]: version } }
     }
 
     async load(url, extraData) {
@@ -139,6 +143,8 @@ module.exports = class FormatHandler {
 
         let check = await this.checkType(url, extraData);
         if (check) {
+            
+            
             try {
                 return this.loadFromClass(await check.resolver());
             } catch (e) {
@@ -150,7 +156,8 @@ module.exports = class FormatHandler {
 
     async loadFromClass(cl) {
         if (cl instanceof BotPlugin) {
-            // TODO: Resolve this.
+            this.__GLOBAL.plugins[cl.scopeName] = cl;
+            this.#logger.log(`Loaded/added plugin ${cl.name} version ${cl.version} by ${cl.author} (sn: ${cl.scopeName}).`);
         } else throw new Error("Invalid class, it should be instanceof BotPlugin.");
     }
 }

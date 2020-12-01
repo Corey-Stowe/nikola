@@ -136,6 +136,11 @@ module.exports = class FormatAParser {
                     )
                     let exec = await script.runInContext(context);
 
+                    let events = Object.entries(pInfo.eventHandler || {}).reduce((a, e) => ({
+                        ...a,
+                        [e[0]]: exec[e[1]]
+                    }), {});
+
                     let plugin = new that.BotPlugin({
                         pluginType,
                         name: pInfo.name,
@@ -154,7 +159,8 @@ module.exports = class FormatAParser {
                                 defaultExecPerm: Boolean(cmd[1].defaultExecPerm)
                             }
                         }), {}),
-                        type: pluginType
+                        type: pluginType,
+                        eventHandler: events
                     });
 
                     return plugin;

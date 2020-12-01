@@ -19,8 +19,10 @@
 
     require("dotenv").config();
 
-    global.__GLOBAL = {};
-    let __GLOBAL = global.__GLOBAL || {}; // Tricking VSCode to think that this is an object.
+    let __GLOBAL = {
+        plugins: {}
+    };
+    global.__GLOBAL = __GLOBAL;
 
     let cModifier = require("./app/classModifier");
     Object.assign(__GLOBAL, cModifier);
