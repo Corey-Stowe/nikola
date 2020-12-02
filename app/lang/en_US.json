@@ -1,0 +1,4 @@
+{
+    "UNKNOWN_COMMAND": "I couldn't understand this command. Please try `{prefix}help`.",
+    "GET_PREFIX": "Prefix is: {prefix}"
+}

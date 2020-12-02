@@ -37,7 +37,16 @@ module.exports = class InterfaceHandler {
         c.on("error", e => this.logger.error(`Interface ID ${c.id} encountered an error:`, e));
 
         c.on("message", msg => {
-            
+            if (
+                // Calling chathook event and check if something want to block internal command execution.
+                (await Promise.all(this.__GLOBAL.plugins.map(p => (
+                    typeof p.events.chatHookEvent === "function" ?
+                        p.events.chatHookEvent() :
+                        false
+                )))).some(x => x === true)
+            ) {
+                // TODO: Executing commands
+            }
         });
     }
 

@@ -42,7 +42,10 @@
 
     global.ensureExists(path.join(process.cwd(), ".data"));
 
-    // Expected sequence: Get storage => Get NPM handler => Load plugin => Check update => Load interface/login
+    // Expected sequence: Get messages (language) => Get storage => Get NPM handler => Load plugin => Check update => Load interface/login
+
+    // Get messages (language)
+    __GLOBAL.getLang = require("./app/languageHandler");
 
     // Get storage
     logger.verb("Executing tasks: Getting storage...");
