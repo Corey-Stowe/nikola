@@ -5,17 +5,19 @@
 */
 
 module.exports = function sortDependency(obj) {
-    return sort(buildTree(obj, obj));
+    return sort(buildTree(obj, obj, []));
 }
 
-function buildTree(obj, baseObj) {
+function buildTree(obj, baseObj, cs) {
     let res = {};
     for (let n in obj) {
         res[n] = obj[n].reduce((a, i) => {
-            a[i] = baseObj[i].filter(x => x != null);
+            try {
+                a[i] = baseObj[i].filter(x => x != null && !(cs.indexOf(x) + 1));
+            } catch (_) { }
             return a;
         }, {});
-        res[n] = buildTree(res[n], baseObj);
+        res[n] = buildTree(res[n], baseObj, [...cs, n]);
     }
     return res;
 }
@@ -41,7 +43,7 @@ function sort(tree) {
 
 function filterByLevel(arr) {
     let res = [];
-    for (let i of arr) { 
+    for (let i of arr) {
         let l = i.split("\x1F").length;
         if (res[l - 1] == null) res[l - 1] = [];
         res[l - 1].push(i);
