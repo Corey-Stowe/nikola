@@ -1,6 +1,8 @@
 let path = require("path");
 let semver = require("semver");
 
+let depSort = require("./dependencySorter");
+
 const BotPlugin = class BotPlugin {
     #dataObj = {
         name: "",
@@ -9,7 +11,7 @@ const BotPlugin = class BotPlugin {
         scopeName: "",
         commandSet: {
             "null": {
-                exec: () => { return { handler: "default", data: { content: "" } }},
+                exec: () => { return { handler: "default", data: { content: "" } } },
                 compatibly: ["platform"],
                 helpArgs: { "ISO": "" },
                 helpDesc: { "ISO": "" },
@@ -28,7 +30,7 @@ const BotPlugin = class BotPlugin {
     get type() { return this.#dataObj.type }
     get supportedCommand() { return Object.keys(this.#dataObj.commandSet) }
     get events() { return this.#dataObj.events }
-    commandInfo(cmd) { return {...this.#dataObj.commandSet[cmd]} }
+    commandInfo(cmd) { return { ...this.#dataObj.commandSet[cmd] } }
     toString() { return this.#dataObj.name + " " + this.#dataObj.version.version; }
 
     #scope = {};
@@ -51,7 +53,7 @@ const BotPlugin = class BotPlugin {
             events: objectData.eventHandler || {}
         }
         this.#scope = objectData.scope;
-        
+
         if (typeof objectData.scope === "object" && typeof objectData.commandDef === "object") {
             for (let cmd in objectData.commandDef) {
                 if (typeof objectData.commandDef[cmd].exec !== "function") continue;
@@ -131,20 +133,26 @@ module.exports = class FormatHandler {
         return this;
     }
 
-    async checkType(url, extraData) {
-        // extraData is unused as of now.
-
+    async checkType(url) {
         let result = await Promise.all(this.#formatResolver.map(f => f.check(url, extraData)));
         result = result.filter(x => x != null);
         if (result.length === 0) return false;
         return result[0];
-        // { type: "A/*", resolver: () => Promise<BotPlugin>, dep: { [scopeName]: version } }
+        // { scopeName: "", type: "A/*", resolver: () => Promise<BotPlugin>, dep: { [scopeName]: version }, url: "" }
     }
 
-    async load(url, extraData) {
-        // extraData is unused as of now.
+    async load(url) {
         let check = await this.checkType(url, extraData);
         if (check) {
+            for (let n in check.dep) {
+                if (!this.__GLOBAL.plugins[n]) throw new Error(`Cannot find plugins with scope = "${check.dep}" required by ${url}.`);
+
+                if (!semver.satisfies(this.__GLOBAL.plugins[n].version, check.dep[n], true))
+                    throw new Error(`${url} requires "${this.__GLOBAL.plugins[n].name
+                        }" (scope = "${n}")'s version to be in the range of ${check.dep[n]} (current version: ${this.__GLOBAL.plugins[n].version
+                        }).`);
+            }
+
             try {
                 return this.loadFromClass(await check.resolver());
             } catch (e) {
@@ -154,8 +162,45 @@ module.exports = class FormatHandler {
         } else throw new Error("Invalid or unsupported format.");
     }
 
+    async batchLoad(urls) {
+        let r = await Promise.all(urls.map(u => this.load(u)));
+        let d = {},
+            dw = {};
+
+        for (let o of r) {
+            d[o.scopeName] = o;
+            dw[o.scopeName] = Object.keys(o.dep);
+        }
+
+        let t = depSort(dw);
+
+        for (let s of t) {
+            try {
+                let check = d[s];
+                for (let n in check.dep) {
+                    if (!this.__GLOBAL.plugins[n]) throw new Error(`Cannot find plugins with scope = "${check.dep}" required by ${check.url}.`);
+
+                    if (!semver.satisfies(this.__GLOBAL.plugins[n].version, check.dep[n], true))
+                        throw new Error(`${url} requires "${this.__GLOBAL.plugins[n].name
+                            }" (scope = "${n}")'s version to be in the range of ${check.dep[n]} (current version: ${this.__GLOBAL.plugins[n].version
+                            }).`);
+                }
+
+                try {
+                    return this.loadFromClass(await check.resolver());
+                } catch (e) {
+                    this.#logger.error(`RUNTIME ERROR: Cannot parse plugin ${url} (detected type: ${check.type}) to class.`);
+                    throw new Error("Invalid or unsupported format.");
+                }
+            } catch (_) {
+                // TODO: return error;
+            }
+        }
+    };
+
     async loadFromClass(cl) {
         if (cl instanceof BotPlugin) {
+            if (this.__GLOBAL.plugins[cl.scopeName]) throw new Error("That scopeName is already taken by another plugin.");
             this.__GLOBAL.plugins[cl.scopeName] = cl;
             this.#logger.log(`Loaded/added plugin ${cl.name} version ${cl.version} by ${cl.author} (sn: ${cl.scopeName}).`);
         } else throw new Error("Invalid class, it should be instanceof BotPlugin.");

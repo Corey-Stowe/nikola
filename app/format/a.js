@@ -20,7 +20,7 @@ module.exports = class FormatAParser {
         return this;
     }
 
-    async check(url, extraData) {
+    async check(url) {
         try {
             let parsedURL = new URL(url);
             let zipObj;
@@ -166,7 +166,9 @@ module.exports = class FormatAParser {
                     return plugin;
                 })(this),
                 type: pluginType,
-                dep: pInfo.dep
+                dep: pInfo.dep || {},
+                scopeName: pInfo.scopeName,
+                url: url
             };
         } catch (_) { };
     }
