@@ -11,7 +11,7 @@ module.exports = async function startFinder(__GLOBAL) {
     fileList = fileList.concat(__GLOBAL.findFromDir(path.resolve(process.cwd(), String(process.env.PLUGIN_LOCATION)), /^.*\.npp$/, true, false));
 
     // Moved to pluginFormatHandler to ensure dependencies.
-    let e = formatHandler.batchLoad(fileList.map(x => "file://" + x));
+    let e = await formatHandler.batchLoad(fileList.map(x => "file://" + x));
 
     e.forEach(x => logger.error(x));
 }
