@@ -1,4 +1,5 @@
 {
     "UNKNOWN_COMMAND": "I couldn't understand this command. Please try `{prefix}help`.",
-    "GET_PREFIX": "Prefix is: {prefix}"
+    "GET_PREFIX": "Prefix is: {prefix}",
+    "AN_ERROR_OCCURED": "An error occured while executing this command! {error}"
 }

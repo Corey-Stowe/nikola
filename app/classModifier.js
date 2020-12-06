@@ -163,5 +163,9 @@ let splitArgs = function splitArgs(string) {
         });
 }
 
+String.prototype.objectReplace = function objectReplace(obj) {
+    return Object.keys(obj).reduce((s, v) => s.replaceAll(String(v[0]), String(v[1])), this.valueOf());
+}
+
 module.exports = { getType, ensureExists, findFromDir, requireFromString, splitArgs };
 Object.assign(global, module.exports);

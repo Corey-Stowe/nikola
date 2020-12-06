@@ -17,6 +17,8 @@ module.exports = async function getClass(__GLOBAL) {
             1: "Listening"
         }
 
+        static configServerLevel = true;
+
         static interfaceType = "Discord";
 
         #status = -Infinity;
@@ -58,32 +60,35 @@ module.exports = async function getClass(__GLOBAL) {
                 this.#accountName = this.#djsInstance.user.tag;
             });
             this.#djsInstance.on("message", msg => {
-                this.emit("message", {
-                    id: this.#id,
-                    rawClient: this,
-                    rawMessage: msg,
-                    message: {
-                        content: msg.content,
-                        mentions: msg.mentions,
-                        attachments: msg.attachments,
-                        senderID: `Discord$.$User$.$${msg.author.id}`,
-                        messageID: `Discord$.$Message$.$${msg.id}`,
-                        isBot: msg.author.bot,
-                        noResolve: msg.author.bot || msg.system,
-                        threadID: `Discord$.$${msg.channel.type === "dm" ? "DMChannel" : "Channel"}$.$${msg.channel.id}`,
-                        serverID: msg.channel.type == "dm" ?
-                            `Discord$.$DMChannel$.$${msg.channel.id}` :
-                            `Discord$.$Server$.$${msg.guild.id}`,
-                        isDM: msg.channel.type === "dm",
-                        mentionPrefix: msg.content.trim().indexOf(`<@${this.accountID}>`) === 0 ?
-                            {
-                                from: msg.content.indexOf(`<@${this.accountID}>`),
-                                to: msg.content.indexOf(`<@${this.accountID}>`) + `<@${this.accountID}>`.length,
-                                mentionContent: `<@${this.accountID}>`
-                            } :
-                            false
-                    }
-                });
+                let that = this;
+                with ({ ...msg, that }) {
+                    that.emit("message", {
+                        id: that.#id,
+                        rawClient: that,
+                        rawMessage: msg,
+                        message: {
+                            content,
+                            mentions,
+                            attachments,
+                            senderID: `Discord$.$User$.$${author.id}`,
+                            messageID: `Discord$.$Message$.$${msg.id}`,
+                            isBot: author.bot,
+                            noResolve: author.bot || system,
+                            threadID: `Discord$.$${channel.type === "dm" ? "DMChannel" : "Channel"}$.$${channel.id}`,
+                            serverID: channel.type == "dm" ?
+                                `Discord$.$DMChannel$.$${channel.id}` :
+                                `Discord$.$Server$.$${guild.id}`,
+                            isDM: channel.type === "dm",
+                            mentionPrefix: content.trim().indexOf(`<@${that.accountID}>`) === 0 ?
+                                {
+                                    from: content.indexOf(`<@${that.accountID}>`),
+                                    to: content.indexOf(`<@${that.accountID}>`) + `<@${that.accountID}>`.length,
+                                    mentionContent: `<@${that.accountID}>`
+                                } :
+                                false
+                        }
+                    });
+                }
             });
             this.#djsInstance.on("error", err => {
                 this.emit("error", { causedBy: "discord.js", error: err });
@@ -92,6 +97,23 @@ module.exports = async function getClass(__GLOBAL) {
 
             return this;
         }
+
+        async sendMsg(d) {
+            if (d.to && d.content) {
+                let s = d.to.split("$.$");
+
+                if (s[0] !== "Discord") return false;
+                switch (s[1]) {
+                    case "DMChannel":
+                    case "Channel":
+                        // Channel ID is on s[2]
+                        return await (await this.#djsInstance.channels.fetch(s[2])).send(d.content, d.extraData);
+                    default:
+                        return false;
+                }
+            } else return false;
+        }
+
         async destroy() {
             this.#djsInstance.destroy();
             this._updateStatus(-Infinity);

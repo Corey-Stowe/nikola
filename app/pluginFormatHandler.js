@@ -17,7 +17,8 @@ const BotPlugin = class BotPlugin {
                 helpDesc: { "ISO": "" },
                 example: ["$@$null"], // $@$ is the current prefix
                 defaultViewPerm: true,
-                defaultExecPerm: true
+                defaultExecPerm: true,
+                aliases: [""]
             }
         },
         type: "",
@@ -28,7 +29,13 @@ const BotPlugin = class BotPlugin {
     get version() { return this.#dataObj.version }
     get author() { return this.#dataObj.author || "" }
     get type() { return this.#dataObj.type }
-    get supportedCommand() { return Object.keys(this.#dataObj.commandSet) }
+    get supportedCommand() {
+        return Object.entries(this.#dataObj.commandSet).reduce((a, v) => ({
+            ...a,
+            [v[0]]: v[0],
+            ...v[1].aliases.reduce((a, x) => ({ ...a, [x]: v[0] }))
+        }), {})
+    }
     get events() { return this.#dataObj.events }
     commandInfo(cmd) { return { ...this.#dataObj.commandSet[cmd] } }
     toString() { return this.#dataObj.name + " " + this.#dataObj.version.version; }
@@ -174,6 +181,7 @@ module.exports = class FormatHandler {
 
         let t = depSort(dw);
 
+        let e = [];
         for (let s of t) {
             try {
                 let check = d[s];
@@ -193,9 +201,12 @@ module.exports = class FormatHandler {
                     throw new Error("Invalid or unsupported format.");
                 }
             } catch (_) {
-                // TODO: return error;
+                this.#logger.error(`BLError:`, _);
+                e.push(_);
             }
         }
+
+        return e;
     };
 
     async loadFromClass(cl) {
